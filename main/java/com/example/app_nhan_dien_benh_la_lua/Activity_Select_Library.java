@@ -54,13 +54,15 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import com.example.app_nhan_dien_benh_la_lua.model.Ai_Reg;
+import com.example.app_nhan_dien_benh_la_lua.Img_Util.Model_Solution;
 
 
 
 
 public class Activity_Select_Library extends AppCompatActivity {
     ImageView img_rs;
-    Button btn_result, btn_nnvdt;
+    Button btn_result, btn_nnvdt, btn_chonlai;
     EditText edt_rs;
     int imageSize = 256;
     String result;
@@ -74,6 +76,7 @@ public class Activity_Select_Library extends AppCompatActivity {
         img_rs = findViewById(R.id.img_rs);
         btn_result = findViewById(R.id.btn_result);
         edt_rs = findViewById(R.id.edt_rs);
+        btn_chonlai = findViewById(R.id.btn_chonlai);
         btn_nnvdt = findViewById(R.id.btn_nnvct);
         btn_nnvdt.setEnabled(false); // Để vô hiệu hóa button điều trị
         openImagePicker();
@@ -81,7 +84,10 @@ public class Activity_Select_Library extends AppCompatActivity {
         btn_result.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                classifyImage(uriToBitmap(uri_img_rs, getContentResolver(), 256, 256));
+//                classifyImage(uriToBitmap(uri_img_rs, getContentResolver(), 256, 256));
+                Ai_Reg ai_reg = new Ai_Reg(getApplicationContext());
+                result = ai_reg.classifyImage(uriToBitmap(uri_img_rs, getContentResolver(), 256, 256));
+//                result = classifyImage(uriToBitmap(uri_img_rs, getContentResolver(), 256, 256));
                 Log.d("ketqua", result);
                 edt_rs.setText(result);
                 btn_nnvdt.setEnabled(true);
@@ -92,19 +98,17 @@ public class Activity_Select_Library extends AppCompatActivity {
         btn_nnvdt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = "";
-                if (flag == 1){
-                    url = "https://vnfarm.com.vn/benh-chay-bia-la-lua";
-                } else if (flag == 2) {
-                    url = "https://tanixa.com/benh-dom-nau-tren-lua/";
-                }else {
-                    url = "https://vnfarm.com.vn/benh-dao-on-tren-lua";
-                }
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(browserIntent);
+                Model_Solution modelSolution = new Model_Solution();
+                startActivity(modelSolution.Solution(result));
             }
         });
 
+        btn_chonlai.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openImagePicker();
+            }
+        });
     }
 
 
@@ -114,7 +118,7 @@ public class Activity_Select_Library extends AppCompatActivity {
         if (requestCode == 400 && resultCode == RESULT_OK && data != null) {
             Uri selectedImageUri = data.getData();
             img_rs.setImageURI(selectedImageUri); // Hiển thị ảnh lên img_rs
-            uri_img_rs = selectedImageUri;
+            uri_img_rs = selectedImageUri; //gan bien toan cuc
         }
     }
 
@@ -123,57 +127,6 @@ public class Activity_Select_Library extends AppCompatActivity {
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), 400);
-    }
-
-
-
-    public void classifyImage(Bitmap image){
-        try {
-            Model model = Model.newInstance(getApplicationContext());
-
-            // Creates inputs for reference.
-            TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 256, 256, 3}, DataType.FLOAT32);
-            ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4 * imageSize * imageSize * 3);
-            byteBuffer.order(ByteOrder.nativeOrder());
-
-            int[] intValues = new int[imageSize * imageSize];
-            image.getPixels(intValues, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
-            int pixel = 0;
-            //iterate over each pixel and extract R, G, and B values. Add those values individually to the byte buffer.
-            for(int i = 0; i < imageSize; i ++){
-                for(int j = 0; j < imageSize; j++){
-                    int val = intValues[pixel++]; // RGB
-                    byteBuffer.putFloat(((val >> 16) & 0xFF) * (1.f / 1));
-                    byteBuffer.putFloat(((val >> 8) & 0xFF) * (1.f / 1));
-                    byteBuffer.putFloat((val & 0xFF) * (1.f / 1));
-                }
-            }
-
-            inputFeature0.loadBuffer(byteBuffer);
-
-            // Runs model inference and gets result.
-            Model.Outputs outputs = model.process(inputFeature0);
-            TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
-
-            float[] confidences = outputFeature0.getFloatArray();
-            // find the index of the class with the biggest confidence.
-            int maxPos = 0;
-            float maxConfidence = 0;
-            for (int i = 0; i < confidences.length; i++) {
-                if (confidences[i] > maxConfidence) {
-                    maxConfidence = confidences[i];
-                    maxPos = i;
-                }
-            }
-            String[] classes = {"Cháy Bìa Lá", "Đốm Nâu", "Đạo Ôn"};
-            flag = maxPos + 1;
-            result = classes[maxPos];
-
-            // Releases model resources if no longer used.
-            model.close();
-        } catch (IOException e) {
-            // TODO Handle the exception
-        }
     }
 
     public Bitmap uriToBitmap(Uri uri, ContentResolver contentResolver, int desiredWidth, int desiredHeight) {
@@ -188,64 +141,5 @@ public class Activity_Select_Library extends AppCompatActivity {
             return null; // Xử lý lỗi nếu có
         }
     }
-
-
-
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        if(resultCode == RESULT_OK){
-//            if(requestCode == 3){
-//                Bitmap image = (Bitmap) data.getExtras().get("data");
-//                int dimension = Math.min(image.getWidth(), image.getHeight());
-//                image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
-//                imageView.setImageBitmap(image);
-//
-//                image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
-//                classifyImage(image);
-//            }else{
-//                Uri dat = data.getData();
-//                Bitmap image = null;
-//                try {
-//                    image = MediaStore.Images.Media.getBitmap(this.getContentResolver(), dat);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                imageView.setImageBitmap(image);
-//
-//                image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false);
-//                classifyImage(image);
-//            }
-//        }
-//        super.onActivityResult(requestCode, resultCode, data);
-//    }
-
-
-//    private String encodeImage(Bitmap bitmap) {
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-//        byte[] byteArray = byteArrayOutputStream.toByteArray();
-//        return Base64.encodeToString(byteArray, Base64.DEFAULT);
-//    }
-//
-//    public String BitMapToString(Bitmap bitmap){
-//        ByteArrayOutputStream baos=new  ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
-//        byte [] b=baos.toByteArray();
-//        String temp= Base64.encodeToString(b, Base64.DEFAULT);
-//        return temp;
-//    }
-//    public Bitmap StringToBitMap(String encodedString){
-//        try {
-//            byte [] encodeByte=Base64.decode(encodedString,Base64.DEFAULT);
-//            Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-//            return bitmap;
-//        } catch(Exception e) {
-//            e.getMessage();
-//            return null;
-//        }
-//    }
-
-
 
 }

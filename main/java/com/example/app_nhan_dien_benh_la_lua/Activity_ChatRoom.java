@@ -73,27 +73,10 @@ public class Activity_ChatRoom extends AppCompatActivity {
         getOrCreateChatroomModel();
         setupChatRecyclerView();
 
-//        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-//            @Override
-//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                if(item.getItemId()==R.id.menu_profile){
-//                    Intent i = new Intent(getApplicationContext(), Profile_Fragment.class);
-//                    startActivity(i);
-//                }
-//                return true;
-//            }
-//        });
 
     }
 
 
-
-//    public void setMess(){
-//           chatroom_model chatroom_model = new chatroom_model("1", userIds, lastmessTimestamp);
-//            Log.d("model", chatroom_model.toString());
-//            firebaseUtil.currentChatRoom().set(chatroom_model);
-//            Log.d("dungroi", "oke");
-//    }
 
     void sendMessageToUser(String message){
         ChatMessageModel chatMessageModel = new ChatMessageModel(message,userIds,Timestamp.now());
