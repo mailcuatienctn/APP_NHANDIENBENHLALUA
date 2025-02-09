@@ -73,7 +73,6 @@ public class Activity_ChatRoom extends AppCompatActivity {
         getOrCreateChatroomModel();
         setupChatRecyclerView();
 
-
     }
 
 

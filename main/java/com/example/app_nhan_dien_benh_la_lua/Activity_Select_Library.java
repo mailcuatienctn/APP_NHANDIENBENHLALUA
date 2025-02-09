@@ -74,26 +74,26 @@ public class Activity_Select_Library extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_select_library);
         img_rs = findViewById(R.id.img_rs);
-        btn_result = findViewById(R.id.btn_result);
+//        btn_result = findViewById(R.id.btn_result);
         edt_rs = findViewById(R.id.edt_rs);
         btn_chonlai = findViewById(R.id.btn_chonlai);
         btn_nnvdt = findViewById(R.id.btn_nnvct);
-        btn_nnvdt.setEnabled(false); // Để vô hiệu hóa button điều trị
+//        btn_nnvdt.setEnabled(false); // Để vô hiệu hóa button điều trị
         openImagePicker();
 
-        btn_result.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                classifyImage(uriToBitmap(uri_img_rs, getContentResolver(), 256, 256));
-                Ai_Reg ai_reg = new Ai_Reg(getApplicationContext());
-                result = ai_reg.classifyImage(uriToBitmap(uri_img_rs, getContentResolver(), 256, 256));
-//                result = classifyImage(uriToBitmap(uri_img_rs, getContentResolver(), 256, 256));
-                Log.d("ketqua", result);
-                edt_rs.setText(result);
-                btn_nnvdt.setEnabled(true);
-                Log.d("ketqa", ""+flag);
-            }
-        });
+//        btn_result.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+////                classifyImage(uriToBitmap(uri_img_rs, getContentResolver(), 256, 256));
+//                Ai_Reg ai_reg = new Ai_Reg(getApplicationContext());
+//                result = ai_reg.classifyImage(uriToBitmap(uri_img_rs, getContentResolver(), 256, 256));
+////                result = classifyImage(uriToBitmap(uri_img_rs, getContentResolver(), 256, 256));
+//                Log.d("ketqua", result);
+//                edt_rs.setText(result);
+//                btn_nnvdt.setEnabled(true);
+//                Log.d("ketqa", ""+flag);
+//            }
+//        });
 
         btn_nnvdt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,6 +107,7 @@ public class Activity_Select_Library extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 openImagePicker();
+
             }
         });
     }
@@ -119,6 +120,9 @@ public class Activity_Select_Library extends AppCompatActivity {
             Uri selectedImageUri = data.getData();
             img_rs.setImageURI(selectedImageUri); // Hiển thị ảnh lên img_rs
             uri_img_rs = selectedImageUri; //gan bien toan cuc
+            Ai_Reg ai_reg = new Ai_Reg(getApplicationContext());
+            result = ai_reg.classifyImage(uriToBitmap(uri_img_rs, getContentResolver(), 256, 256));
+            edt_rs.setText(result);
         }
     }
 

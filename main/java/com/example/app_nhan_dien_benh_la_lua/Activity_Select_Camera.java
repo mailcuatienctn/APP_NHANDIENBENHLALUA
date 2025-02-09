@@ -34,7 +34,7 @@ public class Activity_Select_Camera extends AppCompatActivity {
         setContentView(R.layout.activity_select_camera);
 
         img_cr = findViewById(R.id.img_rs);
-        btn_chuan_doan = findViewById(R.id.btn_result);
+//        btn_chuan_doan = findViewById(R.id.btn_result);
         edt_rs = findViewById(R.id.edt_rs);
         btn_nnvct = findViewById(R.id.btn_nnvct);
         btn_chonlai = findViewById(R.id.btn_chonlai);
@@ -42,12 +42,12 @@ public class Activity_Select_Camera extends AppCompatActivity {
         openCamera();
 
 
-        btn_chuan_doan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                edt_rs.setText(result);
-            }
-        });
+//        btn_chuan_doan.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                edt_rs.setText(result);
+//            }
+//        });
 
         btn_nnvct.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +80,7 @@ public class Activity_Select_Camera extends AppCompatActivity {
             result = ai_reg.classifyImage(photo);
             // Xử lý ảnh, ví dụ: hiển thị lên ImageView
             img_cr.setImageBitmap(photo); // Hiển thị ảnh từ camera
+            edt_rs.setText(result);
         }
     }
 

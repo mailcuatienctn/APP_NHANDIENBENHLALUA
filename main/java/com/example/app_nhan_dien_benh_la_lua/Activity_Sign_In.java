@@ -69,7 +69,6 @@ public class Activity_Sign_In extends AppCompatActivity {
     private void checkRegister(String phone_rs) {
         db.collection("users").get()
                 .addOnCompleteListener(task -> {
-                    Log.d("sodienthoai", "phone");
                     if (task.isSuccessful()) {
                         StringBuilder phones = new StringBuilder();
                         for (QueryDocumentSnapshot document : task.getResult()) {
